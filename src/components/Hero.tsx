@@ -95,8 +95,8 @@ export function Hero() {
         >
           Design your API visually. Generate production-ready code with
           authentication, validation, and tests. Download and deploy.{" "}
-          <span className="text-white font-medium">5 minutes</span> instead of
-          20 hours.
+          <span className="text-white font-medium">minutes</span> instead of
+          hours/days.
         </motion.p>
 
         {/* CTA */}

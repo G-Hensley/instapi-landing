@@ -118,14 +118,14 @@ export function HowItWorks() {
             <div className="flex items-center gap-2">
               <span className="text-zinc-500 text-sm">Manual setup:</span>
               <span className="text-zinc-500 font-mono line-through">
-                20+ hours
+                hours/days
               </span>
             </div>
             <div className="w-px h-4 bg-zinc-700" />
             <div className="flex items-center gap-2">
               <span className="text-zinc-500 text-sm">With InstAPI:</span>
               <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent font-mono font-bold">
-                5 minutes
+                minutes
               </span>
             </div>
           </div>
