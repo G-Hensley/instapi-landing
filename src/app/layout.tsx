@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { Orbitron, IBM_Plex_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import "./globals.css";
 
 const orbitron = Orbitron({
@@ -57,10 +60,11 @@ export default function RootLayout({
       lang="en"
       className={`dark ${orbitron.variable} ${ibmPlexMono.variable}`}
     >
-      <body
-        className={`antialiased`}
-      >
+      <body className={`antialiased`}>
         {children}
+        <Analytics />
+        <SpeedInsights />
+        <GoogleAnalytics />
       </body>
     </html>
   );
