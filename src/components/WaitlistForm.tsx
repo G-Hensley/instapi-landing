@@ -1,16 +1,41 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion, AnimatePresence } from "framer-motion";
 
+// Sanitize input: remove HTML tags, scripts, and dangerous characters
+const sanitizeInput = (input: string): string => {
+  return input
+    .replace(/<[^>]*>/g, "") // Remove HTML tags
+    .replace(/[<>'"`;(){}[\]\\]/g, "") // Remove dangerous characters
+    .replace(/javascript:/gi, "") // Remove javascript: protocol
+    .replace(/on\w+=/gi, "") // Remove event handlers
+    .trim()
+    .slice(0, 100); // Enforce max length
+};
+
 const waitlistSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   preferredLang: z.string().min(1, "Please select a language"),
+  otherLanguage: z.string().max(100, "Must be 100 characters or less").optional(),
   website: z.string().max(0).optional(), // Honeypot - must be empty
-});
+}).refine(
+  (data) => {
+    // If "other" is selected, otherLanguage should have content
+    if (data.preferredLang === "other") {
+      const sanitized = data.otherLanguage ? sanitizeInput(data.otherLanguage) : "";
+      return sanitized.length >= 2;
+    }
+    return true;
+  },
+  {
+    message: "Please specify your preferred language (at least 2 characters)",
+    path: ["otherLanguage"],
+  }
+);
 
 type WaitlistFormData = z.infer<typeof waitlistSchema>;
 
@@ -31,25 +56,36 @@ export function WaitlistForm() {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm<WaitlistFormData>({
     resolver: zodResolver(waitlistSchema),
     defaultValues: {
       email: "",
       preferredLang: "",
+      otherLanguage: "",
       website: "", // Honeypot
     },
   });
+
+  // Watch the preferredLang field to conditionally show "Other" input
+  const preferredLang = useWatch({ control, name: "preferredLang" });
 
   const onSubmit = async (data: WaitlistFormData) => {
     setIsSubmitting(true);
     setError(null);
 
     try {
+      // Sanitize otherLanguage before sending
+      const sanitizedData = {
+        ...data,
+        otherLanguage: data.otherLanguage ? sanitizeInput(data.otherLanguage) : undefined,
+      };
+
       const response = await fetch("/api/waitlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify(sanitizedData),
       });
 
       const result = await response.json();
@@ -207,6 +243,45 @@ export function WaitlistForm() {
                     We&apos;ll prioritize languages based on demand.
                   </p>
                 </div>
+
+                {/* Other language field - conditionally shown */}
+                <AnimatePresence>
+                  {preferredLang === "other" && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="mb-6 overflow-hidden"
+                    >
+                      <label
+                        htmlFor="otherLanguage"
+                        className="block text-sm font-medium text-zinc-300 mb-2"
+                      >
+                        What language/framework?
+                      </label>
+                      <input
+                        {...register("otherLanguage")}
+                        type="text"
+                        id="otherLanguage"
+                        placeholder="e.g., Rust, Elixir, .NET..."
+                        maxLength={100}
+                        autoComplete="off"
+                        className={`w-full px-4 py-3 bg-zinc-800 border rounded-lg text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-colors ${
+                          errors.otherLanguage ? "border-red-500" : "border-zinc-700"
+                        }`}
+                      />
+                      {errors.otherLanguage && (
+                        <p className="mt-2 text-sm text-red-400">
+                          {errors.otherLanguage.message}
+                        </p>
+                      )}
+                      <p className="mt-2 text-xs text-zinc-500">
+                        Max 100 characters. Letters, numbers, spaces, and common punctuation only.
+                      </p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
                 {/* Honeypot field - hidden from real users */}
                 <div

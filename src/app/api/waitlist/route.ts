@@ -14,6 +14,56 @@ const ALLOWED_LANGUAGES = [
   "other",
 ] as const;
 
+/**
+ * Sanitize user input to prevent XSS, SQL injection, and other attacks.
+ * - Removes HTML tags
+ * - Removes dangerous characters and patterns
+ * - Normalizes whitespace
+ * - Enforces max length
+ */
+function sanitizeInput(input: string, maxLength: number = 100): string {
+  if (!input || typeof input !== "string") {
+    return "";
+  }
+
+  return input
+    // Remove any HTML tags
+    .replace(/<[^>]*>/g, "")
+    // Remove HTML entities
+    .replace(/&[#\w]+;/g, "")
+    // Remove dangerous characters that could be used for injection
+    .replace(/[<>'"`;(){}[\]\\|]/g, "")
+    // Remove javascript: and other dangerous protocols
+    .replace(/javascript:/gi, "")
+    .replace(/vbscript:/gi, "")
+    .replace(/data:/gi, "")
+    // Remove event handler patterns
+    .replace(/on\w+\s*=/gi, "")
+    // Remove SQL injection patterns
+    .replace(/(\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|ALTER|CREATE|TRUNCATE)\b)/gi, "")
+    .replace(/--/g, "")
+    .replace(/\/\*/g, "")
+    // Normalize whitespace
+    .replace(/\s+/g, " ")
+    .trim()
+    // Enforce max length
+    .slice(0, maxLength);
+}
+
+/**
+ * Validate that the input contains only safe characters for a programming language name.
+ * Allows: letters, numbers, spaces, dots, hyphens, plus signs, hashes, slashes
+ */
+function isValidLanguageName(input: string): boolean {
+  if (!input || input.length < 2 || input.length > 100) {
+    return false;
+  }
+  // Allow common characters found in programming language names
+  // e.g., "C++", "C#", ".NET", "Node.js", "Ruby on Rails"
+  const validPattern = /^[a-zA-Z0-9\s.\-+#/]+$/;
+  return validPattern.test(input);
+}
+
 const waitlistSchema = z.object({
   email: z
     .string()
@@ -23,9 +73,26 @@ const waitlistSchema = z.object({
   preferredLang: z
     .enum(ALLOWED_LANGUAGES)
     .catch("other"), // Default to "other" for invalid values
+  otherLanguage: z
+    .string()
+    .max(100, "Language name too long")
+    .optional()
+    .transform((val) => val ? sanitizeInput(val, 100) : undefined),
   // Honeypot field - should always be empty
   website: z.string().max(0, "Invalid submission").optional(),
-});
+}).refine(
+  (data) => {
+    // If "other" is selected, otherLanguage should be valid
+    if (data.preferredLang === "other" && data.otherLanguage) {
+      return isValidLanguageName(data.otherLanguage);
+    }
+    return true;
+  },
+  {
+    message: "Invalid language name. Use only letters, numbers, and common punctuation.",
+    path: ["otherLanguage"],
+  }
+);
 
 export async function POST(request: NextRequest) {
   try {
@@ -38,7 +105,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
+    // Parse body with size limit protection (Next.js has default limits, but be explicit)
+    let body;
+    try {
+      const text = await request.text();
+      // Reject suspiciously large payloads
+      if (text.length > 10000) {
+        return NextResponse.json(
+          { error: "Request too large" },
+          { status: 413 }
+        );
+      }
+      body = JSON.parse(text);
+    } catch {
+      return NextResponse.json(
+        { error: "Invalid JSON" },
+        { status: 400 }
+      );
+    }
 
     // Validate input
     const result = waitlistSchema.safeParse(body);
@@ -59,7 +143,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { email, preferredLang } = result.data;
+    const { email, preferredLang, otherLanguage } = result.data;
+
+    // Determine the final language value to store
+    // If "other" is selected, combine with the specified language
+    const languageToStore = preferredLang === "other" && otherLanguage
+      ? `other:${otherLanguage}`
+      : preferredLang;
 
     // Check if email already exists (using normalized email)
     const { data: existing } = await supabase
@@ -81,6 +171,8 @@ export async function POST(request: NextRequest) {
           .update({
             verification_token: token,
             token_expires_at: expiresAt.toISOString(),
+            // Update language preference on re-verification
+            preferred_lang: languageToStore,
           })
           .eq("id", existing.id);
 
@@ -107,7 +199,7 @@ export async function POST(request: NextRequest) {
       .from("waitlist_signups")
       .insert({
         email,
-        preferred_lang: preferredLang,
+        preferred_lang: languageToStore,
         email_verified: false,
         verification_token: verificationToken,
         token_expires_at: tokenExpiresAt.toISOString(),
