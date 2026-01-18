@@ -1,19 +1,19 @@
 export function FAQ() {
   const faqs = [
     {
-      question: "What counts as a credit?",
+      question: "What counts as an endpoint?",
       answer:
-        "A credit is used when you publish a backend. You can iterate and preview as much as you want before publishing.",
+        "One endpoint = one route (e.g., GET /users, POST /login). A standard CRUD resource uses 5 endpoints. You can preview and iterate freely before publishing.",
     },
     {
-      question: "Can I regenerate without spending credits?",
+      question: "Can I use endpoints across projects?",
       answer:
-        "Yes. Tweak fields, endpoints, and settings freely. Credits only apply when you publish.",
+        "Yes. Build one large project with 50 endpoints or five small projects with 10 each. Your endpoints, your choice.",
     },
     {
-      question: "Do credits expire?",
+      question: "Do endpoints expire?",
       answer:
-        "Pro credits roll over up to 4 total, and Team credits roll over up to 8.",
+        "Starter Pack endpoints never expire. Pro rolls over up to 100 total, Team up to 350. Free resets monthly.",
     },
     {
       question: "Where can I host the code?",
