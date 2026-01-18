@@ -94,9 +94,9 @@ export function Hero() {
           className="text-lg sm:text-xl text-zinc-400 max-w-2xl mx-auto mb-12"
         >
           Design your API visually. Generate production-ready code with
-          authentication, validation, and tests. Download and deploy.{" "}
-          <span className="text-white font-medium">5 minutes</span> instead of
-          20 hours.
+          authentication, validation, and tests. Download and deploy in{" "}
+          <span className="text-white font-medium">minutes</span> instead of
+          hours.
         </motion.p>
 
         {/* CTA */}

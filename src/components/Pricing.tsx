@@ -6,42 +6,42 @@ const tiers = [
   {
     name: "Free",
     price: "$0",
-    description: "Try it out",
+    description: "Test it out",
     features: [
-      "1 backend total",
-      "Max 3 endpoints per backend",
+      "10 endpoints per month",
       "TypeScript/Node.js only",
+      "Basic CRUD & JWT auth",
       "No tests or docs export",
     ],
     cta: "Join waitlist",
     highlighted: false,
   },
   {
-    name: "Pay-as-you-go",
-    price: "$29",
-    unit: "per credit",
-    description: "For occasional projects",
+    name: "Starter Pack",
+    price: "$39",
+    unit: "one-time",
+    description: "For side projects",
     features: [
-      "1 credit = 1 published backend",
-      "Unlimited endpoints per backend",
-      "All languages (when available)",
+      "50 endpoints (never expire)",
+      "All languages available",
+      "Tests & docs export",
+      "Docker files included",
       "Full security features",
-      "Tests and docs export",
     ],
     cta: "Join waitlist",
     highlighted: false,
   },
   {
     name: "Pro",
-    price: "$29",
+    price: "$49",
     unit: "/month",
     description: "For regular builders",
     features: [
-      "1 credit per month",
-      "$22 per extra credit",
-      "Rollover up to 4 credits",
+      "75 endpoints per month",
+      "Rollover up to 100 total",
+      "All current & future features",
       "Priority support",
-      "Early access to new languages",
+      "Early access to new features",
     ],
     cta: "Join waitlist",
     highlighted: true,
@@ -49,16 +49,15 @@ const tiers = [
   },
   {
     name: "Team",
-    price: "$99",
+    price: "$129",
     unit: "/month",
     description: "For teams and agencies",
     features: [
-      "6 credits per month",
-      "$19 per extra credit",
-      "Rollover up to 8 credits",
+      "250 endpoints per month",
+      "Rollover up to 350 total",
       "Team workspace",
       "Shared templates",
-      "Priority support",
+      "Priority support (4hr)",
     ],
     cta: "Join waitlist",
     highlighted: false,
@@ -78,11 +77,11 @@ export function Pricing() {
           className="text-center mb-16"
         >
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-            Hybrid pricing
+            Pay per endpoint
           </h2>
           <p className="text-zinc-400 max-w-xl mx-auto">
-            Subscribe for included credits or pay as you go. A credit is used
-            when you publish a backend.
+            Use endpoints across multiple projects or build one large project.
+            Start free, upgrade when you need more.
           </p>
         </motion.div>
 
