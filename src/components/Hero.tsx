@@ -68,7 +68,7 @@ export function Hero() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
             </span>
-            Coming soon
+            Launching soon - join the waitlist
           </span>
         </motion.div>
 
@@ -93,10 +93,8 @@ export function Hero() {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="text-lg sm:text-xl text-zinc-400 max-w-2xl mx-auto mb-12"
         >
-          Design your API visually. Generate production-ready code with
-          authentication, validation, and tests. Download and deploy in{" "}
-          <span className="text-white font-medium">minutes</span> instead of
-          hours.
+          Generate production-ready APIs from battle-tested templates.
+          Not AI guesswork. Predictable, secure, and ready to deploy.
         </motion.p>
 
         {/* CTA */}
@@ -135,7 +133,7 @@ export function Hero() {
               href="#demo"
               className="inline-flex items-center justify-center px-7 py-3.5 text-base font-semibold text-zinc-100 rounded-xl border border-zinc-700/80 bg-zinc-900/40 hover:bg-zinc-900 transition-colors"
             >
-              See the demo
+              See how it works
               <svg
                 className="w-5 h-5 ml-2 text-zinc-300"
                 fill="none"
@@ -153,21 +151,21 @@ export function Hero() {
           </div>
 
           <p className="text-sm text-zinc-500 mt-5">
-            Be first to know when we launch.
+            Be first to know when we launch. No spam.
           </p>
 
           <ul className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs sm:text-sm text-zinc-500">
             <li className="flex items-center gap-2">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-              Own the code
+              Template-based, not AI
             </li>
             <li className="flex items-center gap-2">
               <span className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
-              Tests included
+              Security built in
             </li>
             <li className="flex items-center gap-2">
               <span className="h-1.5 w-1.5 rounded-full bg-blue-400" />
-              No lock-in
+              You own the code
             </li>
           </ul>
         </motion.div>

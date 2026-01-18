@@ -7,7 +7,7 @@ const steps = [
     number: "01",
     title: "Design",
     description:
-      "Name your resources and define your fields. Select types, set validations, mark what's required.",
+      "Name your resources, define your fields, set validations. Point and click. No YAML to learn.",
     gradient: "from-emerald-500 to-cyan-500",
     gradientText: "from-emerald-400 to-cyan-400",
   },
@@ -15,7 +15,7 @@ const steps = [
     number: "02",
     title: "Configure",
     description:
-      "Choose which endpoints to generate. Set authentication requirements. Define relationships between resources.",
+      "Pick your endpoints. Toggle auth requirements. Define relationships. The wizard handles the complexity.",
     gradient: "from-cyan-500 to-blue-500",
     gradientText: "from-cyan-400 to-blue-400",
   },
@@ -23,7 +23,7 @@ const steps = [
     number: "03",
     title: "Generate",
     description:
-      "One click. Get production-ready Express code with Prisma, JWT auth, validation, and tests.",
+      "One click. Get production-ready Express + TypeScript + Prisma. With JWT auth, validation, and tests.",
     gradient: "from-blue-500 to-violet-500",
     gradientText: "from-blue-400 to-violet-400",
   },
@@ -31,7 +31,7 @@ const steps = [
     number: "04",
     title: "Deploy",
     description:
-      "Download your code. It runs. Deploy to any host you want. You own it completely.",
+      "Download your code. Run npm install. It works. Deploy to any host. You own it.",
     gradient: "from-violet-500 to-pink-500",
     gradientText: "from-violet-400 to-pink-400",
   },
@@ -53,8 +53,7 @@ export function HowItWorks() {
             How it works
           </h2>
           <p className="text-zinc-400 max-w-xl mx-auto">
-            From idea to deployed backend in four steps. No boilerplate. No
-            security oversights.
+            From idea to deployed backend in four steps. Skip the boilerplate. Keep the quality.
           </p>
         </motion.div>
 
