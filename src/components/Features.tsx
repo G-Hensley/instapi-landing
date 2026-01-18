@@ -139,7 +139,7 @@ export function Features() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 xl:grid-cols-3 gap-3">
                 {securityFeatures.map((feature, index) => (
                   <motion.div
                     key={feature}
@@ -149,7 +149,7 @@ export function Features() {
                     transition={{ duration: 0.3, delay: index * 0.05 }}
                     className="flex items-center gap-2 px-3 py-2 bg-zinc-800/30 border border-zinc-700/30 rounded-lg"
                   >
-                    <div className="w-4 h-4 flex-shrink-0 flex items-center justify-center rounded-full bg-gradient-to-br from-emerald-600 to-teal-600">
+                    <div className="w-4 h-4 shrink-0 flex items-center justify-center rounded-full bg-gradient-to-br from-emerald-600 to-teal-600">
                       <svg
                         className="w-2.5 h-2.5 text-white"
                         fill="none"
@@ -164,7 +164,7 @@ export function Features() {
                         />
                       </svg>
                     </div>
-                    <span className="text-xs text-zinc-300 whitespace-nowrap">
+                    <span className="text-xs text-zinc-300 whitespace-nowrap w-fit">
                       {feature}
                     </span>
                   </motion.div>
