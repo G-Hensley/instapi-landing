@@ -57,7 +57,7 @@ const tiers = [
       "Rollover up to 350 total",
       "Team workspace",
       "Shared templates",
-      "Priority support (4hr)",
+      "Priority support (12hr)",
     ],
     cta: "Join waitlist",
     highlighted: false,
