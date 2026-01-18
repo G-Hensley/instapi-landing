@@ -18,11 +18,13 @@ const tiers = [
   },
   {
     name: "Starter Pack",
-    price: "$39",
+    price: "$29",
+    originalPrice: "$29",
+    promoPrice: "$14.50",
     unit: "one-time",
     description: "For side projects",
     features: [
-      "50 endpoints (never expire)",
+      "40 endpoints (never expire)",
       "All languages available",
       "Tests & docs export",
       "Docker files included",
@@ -34,13 +36,15 @@ const tiers = [
   {
     name: "Pro",
     price: "$49",
+    originalPrice: "$49",
+    promoPrice: "$24.50",
     unit: "/month",
     description: "For regular builders",
     features: [
       "75 endpoints per month",
       "Rollover up to 100 total",
       "All current & future features",
-      "Priority support",
+      "Priority support (24hr)",
       "Early access to new features",
     ],
     cta: "Join waitlist",
@@ -49,15 +53,17 @@ const tiers = [
   },
   {
     name: "Team",
-    price: "$129",
+    price: "$99",
+    originalPrice: "$99",
+    promoPrice: "$49.50",
     unit: "/month",
     description: "For teams and agencies",
     features: [
       "250 endpoints per month",
       "Rollover up to 350 total",
-      "Team workspace",
+      "Team workspace (up to 10 users)",
       "Shared templates",
-      "Priority support (12hr)",
+      "Priority support (4hr)",
     ],
     cta: "Join waitlist",
     highlighted: false,
@@ -83,6 +89,38 @@ export function Pricing() {
             Use endpoints across multiple projects or build one large project.
             Start free, upgrade when you need more.
           </p>
+        </motion.div>
+
+        {/* Founding Users Banner */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="mb-10"
+        >
+          <div className="relative overflow-hidden rounded-xl p-[1px] bg-gradient-to-r from-emerald-500 via-cyan-500 to-blue-500">
+            <div className="relative bg-zinc-900/95 backdrop-blur-sm rounded-xl px-6 py-4">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 text-center sm:text-left">
+                <span className="text-2xl">🎯</span>
+                <div>
+                  <p className="text-white font-semibold">
+                    Founding Users Program:{" "}
+                    <span className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent">
+                      First 25 get 50% off first year
+                    </span>
+                  </p>
+                  <p className="text-sm text-zinc-400 mt-1">
+                    <span className="text-emerald-400 font-medium">10 spots claimed</span>
+                    {" • "}
+                    <span className="text-zinc-300">15 remaining</span>
+                    {" • "}
+                    <span className="text-zinc-500">Limited time only</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </motion.div>
 
         {/* Pricing grid */}
@@ -135,11 +173,32 @@ export function Pricing() {
 
               {/* Price */}
               <div className="mb-6">
-                <span className="text-4xl font-bold text-white">
-                  {tier.price}
-                </span>
-                {tier.unit && (
-                  <span className="text-zinc-500 ml-1">{tier.unit}</span>
+                {tier.promoPrice ? (
+                  <>
+                    <span className="text-4xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+                      {tier.promoPrice}
+                    </span>
+                    {tier.unit && (
+                      <span className="text-zinc-500 ml-1">{tier.unit}</span>
+                    )}
+                    <div className="mt-1">
+                      <span className="text-sm text-zinc-500 line-through">
+                        {tier.originalPrice}
+                      </span>
+                      <span className="text-xs text-emerald-400 ml-2">
+                        50% off
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-4xl font-bold text-white">
+                      {tier.price}
+                    </span>
+                    {tier.unit && (
+                      <span className="text-zinc-500 ml-1">{tier.unit}</span>
+                    )}
+                  </>
                 )}
               </div>
 

@@ -1,6 +1,11 @@
 export function FAQ() {
   const faqs = [
     {
+      question: "What's the Founding Users program?",
+      answer:
+        "The first 25 paying customers get 50% off their first year. This includes early access, priority on feature requests, and a Founding User badge.",
+    },
+    {
       question: "What counts as an endpoint?",
       answer:
         "One endpoint = one route (e.g., GET /users, POST /login). A standard CRUD resource uses 5 endpoints. You can preview and iterate freely before publishing.",
@@ -8,12 +13,17 @@ export function FAQ() {
     {
       question: "Can I use endpoints across projects?",
       answer:
-        "Yes. Build one large project with 50 endpoints or five small projects with 10 each. Your endpoints, your choice.",
+        "Yes. Build one large project with 40 endpoints or four small projects with 10 each. Your endpoints, your choice.",
     },
     {
       question: "Do endpoints expire?",
       answer:
         "Starter Pack endpoints never expire. Pro rolls over up to 100 total, Team up to 350. Free resets monthly.",
+    },
+    {
+      question: "Can I upgrade from Starter to Pro?",
+      answer:
+        "Yes! Your unused Starter endpoints remain available, and you can subscribe to Pro anytime.",
     },
     {
       question: "Where can I host the code?",
