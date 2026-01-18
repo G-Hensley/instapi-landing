@@ -20,7 +20,7 @@ const tiers = [
     name: "Starter Pack",
     price: "$29",
     originalPrice: "$29",
-    promoPrice: "$15",
+    promoPrice: "$14.50",
     unit: "one-time",
     description: "For side projects",
     features: [
@@ -37,7 +37,7 @@ const tiers = [
     name: "Pro",
     price: "$49",
     originalPrice: "$49",
-    promoPrice: "$25",
+    promoPrice: "$24.50",
     unit: "/month",
     description: "For regular builders",
     features: [
@@ -55,7 +55,7 @@ const tiers = [
     name: "Team",
     price: "$99",
     originalPrice: "$99",
-    promoPrice: "$50",
+    promoPrice: "$49.50",
     unit: "/month",
     description: "For teams and agencies",
     features: [
