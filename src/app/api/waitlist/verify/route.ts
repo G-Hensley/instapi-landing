@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin as supabase } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase";
 import { sendWelcomeEmail } from "@/lib/resend";
 import { isTokenExpired } from "@/lib/tokens";
 
 export async function GET(request: NextRequest) {
   try {
+    // Check if admin client is available
+    if (!supabaseAdmin) {
+      console.error("supabaseAdmin not configured - SUPABASE_SERVICE_ROLE_KEY missing");
+      return redirectWithMessage("error", "Server configuration error");
+    }
+
     const { searchParams } = new URL(request.url);
     const token = searchParams.get("token");
 
@@ -13,13 +19,14 @@ export async function GET(request: NextRequest) {
     }
 
     // Find the signup with this token
-    const { data: signup, error: fetchError } = await supabase
+    const { data: signup, error: fetchError } = await supabaseAdmin
       .from("waitlist_signups")
       .select("id, email, preferred_lang, email_verified, token_expires_at")
       .eq("verification_token", token)
       .single();
 
     if (fetchError || !signup) {
+      console.error("Failed to find signup:", fetchError);
       return redirectWithMessage("error", "Invalid or expired verification link");
     }
 
@@ -34,7 +41,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Mark as verified and clear the token
-    const { error: updateError } = await supabase
+    const { error: updateError } = await supabaseAdmin
       .from("waitlist_signups")
       .update({
         email_verified: true,

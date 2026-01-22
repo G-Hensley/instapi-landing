@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { supabaseAdmin as supabase } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase";
 import { sendVerificationEmail } from "@/lib/resend";
 import { generateVerificationToken } from "@/lib/tokens";
 
@@ -16,10 +16,6 @@ const ALLOWED_LANGUAGES = [
 
 /**
  * Sanitize user input to prevent XSS, SQL injection, and other attacks.
- * - Removes HTML tags
- * - Removes dangerous characters and patterns
- * - Normalizes whitespace
- * - Enforces max length
  */
 function sanitizeInput(input: string, maxLength: number = 100): string {
   if (!input || typeof input !== "string") {
@@ -27,39 +23,28 @@ function sanitizeInput(input: string, maxLength: number = 100): string {
   }
 
   return input
-    // Remove any HTML tags
     .replace(/<[^>]*>/g, "")
-    // Remove HTML entities
     .replace(/&[#\w]+;/g, "")
-    // Remove dangerous characters that could be used for injection
     .replace(/[<>'"`;(){}[\]\\|]/g, "")
-    // Remove javascript: and other dangerous protocols
     .replace(/javascript:/gi, "")
     .replace(/vbscript:/gi, "")
     .replace(/data:/gi, "")
-    // Remove event handler patterns
     .replace(/on\w+\s*=/gi, "")
-    // Remove SQL injection patterns
     .replace(/(\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|ALTER|CREATE|TRUNCATE)\b)/gi, "")
     .replace(/--/g, "")
     .replace(/\/\*/g, "")
-    // Normalize whitespace
     .replace(/\s+/g, " ")
     .trim()
-    // Enforce max length
     .slice(0, maxLength);
 }
 
 /**
  * Validate that the input contains only safe characters for a programming language name.
- * Allows: letters, numbers, spaces, dots, hyphens, plus signs, hashes, slashes
  */
 function isValidLanguageName(input: string): boolean {
   if (!input || input.length < 2 || input.length > 100) {
     return false;
   }
-  // Allow common characters found in programming language names
-  // e.g., "C++", "C#", ".NET", "Node.js", "Ruby on Rails"
   const validPattern = /^[a-zA-Z0-9\s.\-+#/]+$/;
   return validPattern.test(input);
 }
@@ -72,17 +57,15 @@ const waitlistSchema = z.object({
     .transform((email) => email.toLowerCase().trim()),
   preferredLang: z
     .enum(ALLOWED_LANGUAGES)
-    .catch("other"), // Default to "other" for invalid values
+    .catch("other"),
   otherLanguage: z
     .string()
     .max(100, "Language name too long")
     .optional()
     .transform((val) => val ? sanitizeInput(val, 100) : undefined),
-  // Honeypot field - should always be empty
   website: z.string().max(0, "Invalid submission").optional(),
 }).refine(
   (data) => {
-    // If "other" is selected, otherLanguage should be valid
     if (data.preferredLang === "other" && data.otherLanguage) {
       return isValidLanguageName(data.otherLanguage);
     }
@@ -96,6 +79,15 @@ const waitlistSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    // Check if admin client is available
+    if (!supabaseAdmin) {
+      console.error("supabaseAdmin not configured - SUPABASE_SERVICE_ROLE_KEY missing");
+      return NextResponse.json(
+        { error: "Server configuration error" },
+        { status: 500 }
+      );
+    }
+
     // Check content type
     const contentType = request.headers.get("content-type");
     if (!contentType?.includes("application/json")) {
@@ -105,11 +97,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Parse body with size limit protection (Next.js has default limits, but be explicit)
+    // Parse body
     let body;
     try {
       const text = await request.text();
-      // Reject suspiciously large payloads
       if (text.length > 10000) {
         return NextResponse.json(
           { error: "Request too large" },
@@ -127,10 +118,8 @@ export async function POST(request: NextRequest) {
     // Validate input
     const result = waitlistSchema.safeParse(body);
     if (!result.success) {
-      // Check if honeypot was filled (bot detection)
       const flattenedErrors = result.error.flatten();
       if (flattenedErrors.fieldErrors.website) {
-        // Silently reject bot submissions with fake success
         return NextResponse.json(
           { message: "Successfully joined the waitlist" },
           { status: 201 }
@@ -145,33 +134,27 @@ export async function POST(request: NextRequest) {
 
     const { email, preferredLang, otherLanguage } = result.data;
 
-    // Determine the final language value to store
-    // If "other" is selected, combine with the specified language
     const languageToStore = preferredLang === "other" && otherLanguage
       ? `other:${otherLanguage}`
       : preferredLang;
 
-    // Check if email already exists (using normalized email)
-    const { data: existing } = await supabase
+    // Check if email already exists
+    const { data: existing } = await supabaseAdmin
       .from("waitlist_signups")
       .select("id, email_verified")
       .eq("email", email)
       .single();
 
     if (existing) {
-      // Don't reveal if email exists - generic message
-      // But we can resend verification if not verified
       if (!existing.email_verified) {
-        // Generate new token and resend
         const token = generateVerificationToken();
-        const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+        const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-        await supabase
+        await supabaseAdmin
           .from("waitlist_signups")
           .update({
             verification_token: token,
             token_expires_at: expiresAt.toISOString(),
-            // Update language preference on re-verification
             preferred_lang: languageToStore,
           })
           .eq("id", existing.id);
@@ -183,7 +166,6 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      // Return success regardless to prevent email enumeration
       return NextResponse.json(
         { message: "Successfully joined the waitlist" },
         { status: 201 }
@@ -192,10 +174,10 @@ export async function POST(request: NextRequest) {
 
     // Generate verification token
     const verificationToken = generateVerificationToken();
-    const tokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+    const tokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
     // Insert into database
-    const { error: insertError } = await supabase
+    const { error: insertError } = await supabaseAdmin
       .from("waitlist_signups")
       .insert({
         email,
@@ -218,7 +200,6 @@ export async function POST(request: NextRequest) {
       await sendVerificationEmail(email, verificationToken, preferredLang);
     } catch (emailError) {
       console.error("Failed to send verification email:", emailError);
-      // Don't fail the request, but log the error
     }
 
     return NextResponse.json(
